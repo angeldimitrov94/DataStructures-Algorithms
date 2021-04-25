@@ -1,0 +1,7 @@
+C:\Users\angel.dimitrov\CS\Algorithms Stanford\AlgorithmsRepo\RecIntMult\ConsoleApp7\bin\Debug\ConsoleApp7.exe.config
+C:\Users\angel.dimitrov\CS\Algorithms Stanford\AlgorithmsRepo\RecIntMult\ConsoleApp7\bin\Debug\ConsoleApp7.exe
+C:\Users\angel.dimitrov\CS\Algorithms Stanford\AlgorithmsRepo\RecIntMult\ConsoleApp7\bin\Debug\ConsoleApp7.pdb
+C:\Users\angel.dimitrov\CS\Algorithms Stanford\AlgorithmsRepo\RecIntMult\ConsoleApp7\obj\Debug\RecIntMult.csprojAssemblyReference.cache
+C:\Users\angel.dimitrov\CS\Algorithms Stanford\AlgorithmsRepo\RecIntMult\ConsoleApp7\obj\Debug\RecIntMult.csproj.CoreCompileInputs.cache
+C:\Users\angel.dimitrov\CS\Algorithms Stanford\AlgorithmsRepo\RecIntMult\ConsoleApp7\obj\Debug\ConsoleApp7.exe
+C:\Users\angel.dimitrov\CS\Algorithms Stanford\AlgorithmsRepo\RecIntMult\ConsoleApp7\obj\Debug\ConsoleApp7.pdb
