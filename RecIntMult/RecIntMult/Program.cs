@@ -6,10 +6,19 @@ namespace RecIntMult
     {
         static void Main(string[] args)
         {
+            int a = 0;
+            int b = 0;
+            int temp = 0;
+            Console.WriteLine($"-----Recursive Integer Multiplication Demo-----");
+            Console.Write(String.Format("{0,30}","Please enter first operand : "));
+            if (int.TryParse(Console.ReadLine(), out temp)) a = temp;
+            Console.Write(String.Format("{0,30}", "Please enter second operand : "));
+            if (int.TryParse(Console.ReadLine(), out temp)) b = temp;
             long begin = DateTime.Now.Ticks;
-            Mult(1010, 1010);
+            int result = Mult(a, b);
             long end = DateTime.Now.Ticks - begin;
-            Console.WriteLine($"time : {end/100}us");
+            Console.WriteLine(String.Format("{0,30}", $"Result of {a}*{b} : ")+ result);
+            Console.WriteLine(String.Format("{0,30}", $"Execution time : ")+$"{end / 100}µs");
             Console.ReadLine();
         }
 
