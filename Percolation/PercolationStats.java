@@ -1,32 +1,101 @@
+import edu.princeton.cs.algs4.StdStats;
+
 public class PercolationStats {
 
+  private double[] thresholds;
+  private int numTrials;
+  private double mean;
+  private double sharpness;
+
   // perform independent trials on an n-by-n grid
-  public PercolationStats(int n, int trials) {
+  public PercolationStats(int n, int trials) throws Exception {
     if (n <= 0 || trials <= 0)
       throw new IllegalAccessError();
     else {
-      //something
+      numTrials = trials;
+      thresholds = new double[trials];
+
+      for (int i = 0; i < trials; i++) {
+        try {
+          Percolation perc = new Percolation(n);
+          RandomSiteRowColGenerator rand = new RandomSiteRowColGenerator(1, n, perc);
+          //while lattice is not percolating
+          //continue opening new sites
+          //until the lattice does percolate
+          while (!perc.percolates()) {
+            int[] pair = rand.GenerateRandomInteger();
+            perc.open(pair[0], pair[1]);
+          }
+          //once lattice percolates add threshold to thresholds
+          int open = getOpenSites(perc);
+          thresholds[i] = (double) open / (double) n*n;
+          //System.out.println("finished "+thresholds[i]);
+        } catch (Exception e) {
+          if (e.getMessage().contains("Exceeded") & e.getMessage().contains("attempts")) {
+            i--;
+            continue;
+          } else
+            throw e;
+        }
+      }
+      CalculateSharpness();
+      mean = mean();
     }
+  }
+
+  private int getOpenSites(Percolation perc)
+  {
+      int openSites = 0;
+      for (int i = 0; i < perc.lattice.length; i++) {
+          if (perc.lattice[i] == 0) {
+              openSites += 1;
+          }
+      }
+      
+      return openSites;
+  }
+  
+  //Calculate the 'sharpness' coefficient of a dataset
+  private void CalculateSharpness()
+  {
+    double rollingSum = 0.0;
+    for (double d : thresholds) {
+      rollingSum += Math.pow((d - mean), 2);
+    }
+    sharpness = Math.sqrt(rollingSum / (numTrials - 1));
   }
 
   // sample mean of percolation threshold
   public double mean() {
-    return 0.9;}
+    return StdStats.mean(thresholds);
+  }
 
   // sample standard deviation of percolation threshold
   public double stddev() {
-    return 0.0;}
+    return StdStats.stddev(thresholds);
+  }
 
   // low endpoint of 95% confidence interval
   public double confidenceLo() {
-    return 0.0;}
+    return mean - ((1.96 * sharpness) / Math.sqrt(numTrials));
+  }
 
   // high endpoint of 95% confidence interval
   public double confidenceHi() {
-    return 0.0;}
+    return mean + ((1.96 * sharpness) / Math.sqrt(numTrials));
+  }
 
  // test client (see below)
-  public static void main(String[] args) {
-   
+ public static void main(String[] args) throws NumberFormatException, Exception {
+    PercolationStats percStats = 
+        new PercolationStats(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+    String[] headers = { "mean", "stddev", "95% confidence interval" };
+    String meanStr = String.format("%-24s= %2s",headers[0],percStats.mean());
+    String stddevStr = String.format("%-24s= %2s",headers[1],percStats.stddev());
+    String confIntervalStr = String.format("%-24s= [%2s, %3s]", headers[2], 
+    percStats.confidenceLo(), percStats.confidenceHi());
+    System.out.println(meanStr);
+    System.out.println(stddevStr);
+    System.out.println(confIntervalStr);
  }
 }

@@ -1,13 +1,18 @@
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
+import java.util.ArrayList;
+import edu.princeton.cs.algs4.StdRandom;
 
 public class Percolation {
+    //#region Data Structures fields
     private WeightedQuickUnionUF wquf;
     //1 = blocked
-    //0 = open
-    private int[] lattice;
+    //0 = open.
+    public int[] lattice;
     private int lengthWithoutVP;
     private int lengthWithVP;
+    //#endregion
 
+    //#region Type of Site fields
     //constants defining type of site 
     //in terms of location within lattice
     private final int INNER = 0;
@@ -19,21 +24,34 @@ public class Percolation {
     private final int CORNER_LEFT_BOTTOM = 6;
     private final int CORNER_RIGHT_TOP = 7;
     private final int CORNER_RIGHT_BOTTOM = 8;
+    //#endregion
 
+    //#region Type of neighbor fields
     //constants defining type of neighbor
     private final int TOP = 0;
     private final int RIGHT = 1;
     private final int BOTTOM = 2;
     private final int LEFT = 3;
+    ////#endregion
 
+    //#region Helpers
     //get nxn side dimension of lattice
     private int getSideDimension() throws Exception
     {
         if (lattice != null) {
-            return (int)Math.sqrt(lengthWithoutVP) ;
+            return (int) Math.sqrt(lengthWithoutVP);
         } else {
             throw new Exception("Lattice not initialized");
         }
+    }
+
+    private int[] getRowColumn(int index) throws Exception
+    {
+        int side = getSideDimension();
+        int row = index % side == 0 ? (int) Math.ceil(index / side) : 
+            (int) Math.ceil(index / side)+1;
+        int col = index % side == 0 ? side : index % side;
+        return new int[] { row, col };
     }
 
     private int getIndex(int row, int col) throws Exception
@@ -54,29 +72,31 @@ public class Percolation {
         validateRowColumn(row, col);
         try {
             int sideDimension = getSideDimension();
-            if (row == 1 && col!=1 && col!=sideDimension)
+            if (row == 1 && col != 1 && col != sideDimension)
                 return EDGE_TOP;
-            else if (col == 1 && row!=1 && row!=sideDimension)
+            else if (col == 1 && row != 1 && row != sideDimension)
                 return EDGE_LEFT;
-            else if (row == sideDimension && col!=1 && col!=sideDimension)
+            else if (row == sideDimension && col != 1 && col != sideDimension)
                 return EDGE_BOTTOM;
-            else if (col == sideDimension && row!=1 && row!=sideDimension)
+            else if (col == sideDimension && row != 1 && row != sideDimension)
                 return EDGE_RIGHT;
-            else if(row==1 && col==1) 
+            else if (row == 1 && col == 1)
                 return CORNER_LEFT_TOP;
-            else if(row==1 && col==sideDimension)
+            else if (row == 1 && col == sideDimension)
                 return CORNER_RIGHT_TOP;
-            else if(row==sideDimension && col==1)
+            else if (row == sideDimension && col == 1)
                 return CORNER_LEFT_BOTTOM;
-            else if(row==sideDimension && col==sideDimension)
+            else if (row == sideDimension && col == sideDimension)
                 return CORNER_RIGHT_BOTTOM;
-            else return INNER;
+            else
+                return INNER;
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return -1;
         }
     }
+    //#endregion
 
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(int n) throws Exception {
@@ -87,10 +107,11 @@ public class Percolation {
             //n=0 is top virtual site
             //n=n is bottom virtual site
             //lattice is 1-indexed because of this
-            lengthWithVP = n + 2;
-            lengthWithoutVP = n;
+            lengthWithoutVP = n*n;
+            lengthWithVP = lengthWithoutVP + 2;
+            
             wquf = new WeightedQuickUnionUF(lengthWithVP);
-            lattice = new int[lengthWithVP];
+            lattice = new int[lengthWithoutVP];
             //fill lattice with 1s representing all blocked sites
             for (int i = 0; i < lattice.length; i++) {
                 lattice[i] = 1;
@@ -103,7 +124,7 @@ public class Percolation {
     {
         try {
             int sideDimension = getSideDimension();
-            for (int i = 1; i < sideDimension; i++) {
+            for (int i = 1; i <= sideDimension; i++) {
                 //0 is top virtual site
                 //connect it to first row of sites
                 wquf.union(0, i);
@@ -121,19 +142,40 @@ public class Percolation {
     {
         validateRowColumn(row, col);
         if (top)
-            wquf.union(getIndex(row, col), getIndex((row - 1), col));
+        {
+            if (lattice[getIndex((row - 1), col) - 1] == 0)
+            {
+                wquf.union(getIndex(row, col), getIndex((row - 1), col));
+            }
+        }
         if (right)
-            wquf.union(getIndex(row, col), getIndex(row, (col + 1)));
+        {
+            if (lattice[getIndex(row, (col + 1)) - 1] == 0)
+            {
+                wquf.union(getIndex(row, col), getIndex(row, (col + 1)));
+            }
+        }
         if (bottom)
-            wquf.union(getIndex(row, col), getIndex((row + 1), col));
+        {
+            if (lattice[getIndex((row + 1), col) - 1] == 0)
+            {
+                wquf.union(getIndex(row, col), getIndex((row + 1), col));
+            }
+        }
         if (left)
-            wquf.union(getIndex(row, col), getIndex(row, (col - 1)));
+        {
+            if (lattice[getIndex(row, (col - 1)) - 1] == 0)
+            {
+                wquf.union(getIndex(row, col), getIndex(row, (col - 1)));
+            }
+        }
     }
 
     // opens the site (row, col) if it is not open already
     public void open(int row, int col) throws Exception {
-        if (lattice[row * col] != 0)
+        if (lattice[getIndex(row, col)-1] != 0)
         {
+            lattice[getIndex(row, col) - 1] = 0;
             switch (getLocation(row, col)) {
                 case INNER:
                     PerformUnionOnNeighbors(row, col, true, true, true, true);
@@ -165,20 +207,19 @@ public class Percolation {
                 default:
                     break;
             }
-            lattice[row * col] = 0;
         }
     }
 
     // is the site (row, col) open?
     public boolean isOpen(int row, int col) throws Exception {
         validateRowColumn(row, col);
-        return lattice[row*col] == 0 ? true : false;
+        return lattice[getIndex(row, col)-1] == 0 ? true : false;
 	}
 
     // is the site (row, col) full?
     public boolean isFull(int row, int col) throws Exception {
         validateRowColumn(row, col);
-        return wquf.find(row * col) == wquf.find(0)? true : false;
+        return wquf.find(getIndex(row, col)) == wquf.find(0)? true : false;
 	}
 
     // returns the number of open sites
@@ -192,22 +233,71 @@ public class Percolation {
         //and bottom virtual site (lengthWithVP)
         //have same canonical element, then there is a 
         //top-to-bottom connection and percolates
-        if (wquf.find(0) == wquf.find(lengthWithVP-1))
+        if (wquf.find(0) == wquf.find(lengthWithVP - 1))
             return true;
         else
             return false;
-	}
+    }
+    
+    private void ShowImageOfSites() throws Exception
+    {
+        int side = getSideDimension();
+        System.out.print("   ");
+        for (int i = 1; i <= side; i++) {
+            System.out.print(i + " ");
+        }
+        int row = 1;
+        int col = 1;
+        for (int i = 1; i <= lattice.length; i++) {
+            row = getRowColumn(i)[0];
+            col = getRowColumn(i)[1];
+            if ((col-1) % side == 0 | i == 1) {
+                System.out.println();
+                int colNumLen = String.valueOf(col).length();
+                System.out.print(col+" ".repeat(3-colNumLen));
+                if (isFull(row, col))
+                    System.out.print("○ ");
+                else if(lattice[i-1]==0)
+                    System.out.print("¤ ");
+                else
+                    System.out.print("◙ ");
+            } else {
+                if (isFull(row, col))
+                    System.out.print("○ ");
+                else if(lattice[i-1]==0)
+                    System.out.print("¤ ");
+                else
+                    System.out.print("◙ ");
+            }
+        }
+        System.out.println();
+    }
 
     // test client (optional)
-    public static void main(String[] args){
+    public static void main(String[] args) {
         Percolation perc;
         try {
-            perc = new Percolation(9);
-            perc.open(2, 2);
-            System.out.println(perc.percolates()); 
+            int n = 5;
+            perc = new Percolation(n);
+            int attempt = 1;
+            RandomSiteRowColGenerator rand = new RandomSiteRowColGenerator(1, n, perc);
+            perc.ShowImageOfSites();
+            while (!perc.percolates()) {
+                System.out.println("not percolating...attempt : " + attempt + " ...number of sites open : "
+                        + (n * n - attempt + 1));
+                int[] pair = rand.GenerateRandomInteger();
+                perc.open(pair[0], pair[1]);
+                perc.ShowImageOfSites();
+                attempt += 1;
+                if(attempt>perc.wquf.count()) 
+                    throw new Exception("No solution found");
+            }
+            System.out.println("system percolating...attempt : " + attempt + " ...number of sites open : "
+                    + (n * n - attempt + 1));
+            perc.ShowImageOfSites();
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-	}
+    }
 }
