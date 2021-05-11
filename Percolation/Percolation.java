@@ -7,7 +7,7 @@ public class Percolation {
     private WeightedQuickUnionUF wquf;
     //1 = blocked
     //0 = open.
-    public int[] lattice;
+    private int[] lattice;
     private int lengthWithoutVP;
     private int lengthWithVP;
     //#endregion
@@ -280,7 +280,7 @@ public class Percolation {
             int n = 5;
             perc = new Percolation(n);
             int attempt = 1;
-            RandomSiteRowColGenerator rand = new RandomSiteRowColGenerator(1, n, perc);
+            RandomSiteRowColGenerator rand = new RandomSiteRowColGenerator(n, perc);
             perc.ShowImageOfSites();
             while (!perc.percolates()) {
                 System.out.println("not percolating...attempt : " + attempt + " ...number of sites open : "

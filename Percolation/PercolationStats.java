@@ -2,8 +2,9 @@ import edu.princeton.cs.algs4.StdStats;
 
 public class PercolationStats {
 
+  private final int sizeLattice;
   private double[] thresholds;
-  private int numTrials;
+  private final int numTrials;
   private double mean;
   private double sharpness;
 
@@ -13,12 +14,13 @@ public class PercolationStats {
       throw new IllegalAccessError();
     else {
       numTrials = trials;
+      sizeLattice = (n * n);
       thresholds = new double[trials];
 
       for (int i = 0; i < trials; i++) {
         try {
           Percolation perc = new Percolation(n);
-          RandomSiteRowColGenerator rand = new RandomSiteRowColGenerator(1, n, perc);
+          RandomSiteRowColGenerator rand = new RandomSiteRowColGenerator(n, perc);
           //while lattice is not percolating
           //continue opening new sites
           //until the lattice does percolate
@@ -28,7 +30,7 @@ public class PercolationStats {
           }
           //once lattice percolates add threshold to thresholds
           int open = getOpenSites(perc);
-          thresholds[i] = (double) open / (double) n*n;
+          thresholds[i] = (double) open / (double) (n * n);
           //System.out.println("finished "+thresholds[i]);
         } catch (Exception e) {
           if (e.getMessage().contains("Exceeded") & e.getMessage().contains("attempts")) {
@@ -43,11 +45,25 @@ public class PercolationStats {
     }
   }
 
-  private int getOpenSites(Percolation perc)
+  private int getSideDimension() throws Exception
+    {
+        return (int) Math.sqrt(sizeLattice);
+    }
+  
+  private int[] getRowColumn(int index) throws Exception
+    {
+        int side = getSideDimension();
+        int row = index % side == 0 ? (int) Math.ceil(index / side) : 
+            (int) Math.ceil(index / side)+1;
+        int col = index % side == 0 ? side : index % side;
+        return new int[] { row, col };
+    }
+
+  private int getOpenSites(Percolation perc) throws Exception
   {
       int openSites = 0;
-      for (int i = 0; i < perc.lattice.length; i++) {
-          if (perc.lattice[i] == 0) {
+      for (int i = 1; i < sizeLattice+1; i++) {
+          if (perc.isOpen(getRowColumn(i)[0], getRowColumn(i)[1])) {
               openSites += 1;
           }
       }
@@ -89,6 +105,9 @@ public class PercolationStats {
  public static void main(String[] args) throws NumberFormatException, Exception {
     PercolationStats percStats = 
         new PercolationStats(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+    // String[] newArgs = new String[] { "10", "10" };
+    // PercolationStats percStats = 
+    //     new PercolationStats(Integer.parseInt(newArgs[0]), Integer.parseInt(newArgs[1]));
     String[] headers = { "mean", "stddev", "95% confidence interval" };
     String meanStr = String.format("%-24s= %2s",headers[0],percStats.mean());
     String stddevStr = String.format("%-24s= %2s",headers[1],percStats.stddev());

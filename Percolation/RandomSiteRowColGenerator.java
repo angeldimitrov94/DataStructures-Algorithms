@@ -1,42 +1,57 @@
 import java.util.ArrayList;
-
 import edu.princeton.cs.algs4.StdRandom;
-import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class RandomSiteRowColGenerator 
 {
     Percolation percolation;
     private ArrayList<String> pairs = new ArrayList<String>();
-    private int min;
-    private int max;
+    private final int min = 1;
+    private final int max;
+    private final int latticeSize;
 
-    public RandomSiteRowColGenerator(int minimum, int maximum, Percolation perc)
+    /**
+     *
+     * @param n = side dimension of site to generate random # for
+     * @param perc = Percolation object
+     */
+    public RandomSiteRowColGenerator(final int n, final Percolation perc)
     {
-        min = minimum;
-        max = maximum;
+        max = n;
         percolation = perc;
+        latticeSize = (max * max);
     }
-    
+
+    /**
+     * @param num
+     * @return String
+     */
     //helper to quickly convert an int to string
-    private String toStr(int num)
+    private String toStr(final int num)
     {
         return String.valueOf(num);
     }
 
-    public int[] GenerateRandomInteger() throws Exception
+    /**
+     * @return int[]
+     * @throws Exception
+     */
+    public final int[] generateRandomInteger() throws Exception
         {
             int randomRow = StdRandom.uniform(min, max+1);
             int randomCol = StdRandom.uniform(min, max + 1);
             int attempts = 0;
-            while (pairs.contains(toStr(randomRow) + toStr(randomCol)) | percolation.isOpen(randomRow, randomCol)) {
+            while (pairs.contains(toStr(randomRow) + toStr(randomCol)) |
+             percolation.isOpen(randomRow, randomCol)) {
                 randomRow = StdRandom.uniform(min, max + 1);
                 randomCol = StdRandom.uniform(min, max + 1);
-                if(attempts>percolation.lattice.length) 
-                    throw new Exception(String.format("Exceeded %s attempts", percolation.lattice.length));
+                if (attempts > latticeSize) {
+                    throw new Exception(String.format("Exceeded %s attempts",
+                  latticeSize));
+                }
                 attempts += 1;
             }
             pairs.add(toStr(randomRow) + toStr(randomCol));
 
-            return new int[] { randomRow, randomCol };
+            return new int[] {randomRow, randomCol };
         }
     }
